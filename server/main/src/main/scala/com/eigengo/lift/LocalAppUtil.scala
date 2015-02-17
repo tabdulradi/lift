@@ -6,7 +6,7 @@ import com.eigengo.lift.exercise.ExerciseBoot
 import com.eigengo.lift.kafka.KafkaBoot
 import com.eigengo.lift.notification.NotificationBoot
 import com.eigengo.lift.profile.ProfileBoot
-import com.typesafe.config.Config
+import com.typesafe.config.{ Config, ConfigFactory }
 import spray.can.Http
 import spray.routing._
 
@@ -29,7 +29,7 @@ trait LocalAppUtil {
     } yield port).head
 
     // Create an Akka system
-    implicit val system = ActorSystem(LiftActorSystem, config)
+    implicit val system = ActorSystem(LiftActorSystem, ConfigFactory.parseString(s"akka.remote.netty.tcp.port=$port").withFallback(config))
 
     // Startup the journal - typically this is only used when running locally with a levelDB journal
     journalStartUp(system, port == firstSeedNodePort, ActorPath.fromString(s"akka.tcp://$LiftActorSystem@127.0.0.1:$firstSeedNodePort/user/store"))
